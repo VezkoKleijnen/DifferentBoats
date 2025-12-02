@@ -10,7 +10,7 @@ public class GenerationManager : MonoBehaviour
     private GenerateObjectsInArea[] boxGenerators;
 
     [SerializeField] private GenerateObjectsInArea boatGenerator;
-    [SerializeField] private GenerateObjectsInArea pirateGenerator;
+    //[SerializeField] private GenerateObjectsInArea pirateGenerator;
 
     [Space(10)] [Header("Parenting and Mutation")] [SerializeField]
     private float mutationFactor;
@@ -97,7 +97,7 @@ public class GenerationManager : MonoBehaviour
     public void GenerateObjects(BoatLogic[] boatParents = null, PirateLogic[] pirateParents = null)
     {
         GenerateBoats(boatParents);
-        GeneratePirates(pirateParents);
+        //GeneratePirates(pirateParents);
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class GenerationManager : MonoBehaviour
     /// Newly create agents will be Awaken (calling AwakeUp()).
     /// </summary>
     /// <param name="pirateParents"></param>
-    private void GeneratePirates(PirateLogic[] pirateParents)
+/*    private void GeneratePirates(PirateLogic[] pirateParents)
     {
         _activePirates = new List<PirateLogic>();
         var objects = pirateGenerator.RegenerateObjects();
@@ -122,7 +122,7 @@ public class GenerationManager : MonoBehaviour
             pirate.Mutate(mutationFactor, mutationChance);
             pirate.AwakeUp();
         }
-    }
+    }*/
 
     /// <summary>
     /// Generates the list of boats using the parents list. The parent list can be null and, if so, it will be ignored.

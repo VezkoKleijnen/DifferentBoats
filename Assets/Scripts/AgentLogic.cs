@@ -300,7 +300,7 @@ public class AgentLogic : MonoBehaviour, IComparable
             Quaternion.LookRotation(highestAgentDirection.Direction), 0.1f);
 
         //Sets the velocity using the chosen direction
-        _rigidbody.velocity = highestAgentDirection.Direction * movingSpeed;
+        _rigidbody.linearVelocity = highestAgentDirection.Direction * movingSpeed;
 
         if (debug)
         {
@@ -371,7 +371,7 @@ public class AgentLogic : MonoBehaviour, IComparable
     public void Sleep()
     {
         _isAwake = false;
-        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.linearVelocity = Vector3.zero;
     }
 
     public float GetPoints()
