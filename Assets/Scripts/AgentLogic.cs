@@ -51,12 +51,9 @@ public struct AgentData
     public float distanceFactor;
     public float boatWeight;
     public float boatDistanceFactor;
-    public float enemyWeight;
-    public float enemyDistanceFactor;
 
     public AgentData(int steps, int rayRadius, float sight, float movingSpeed, Vector2 randomDirectionValue,
-        float boxWeight, float distanceFactor, float boatWeight, float boatDistanceFactor, float enemyWeight,
-        float enemyDistanceFactor)
+        float boxWeight, float distanceFactor, float boatWeight, float boatDistanceFactor)
     {
         this.steps = steps;
         this.rayRadius = rayRadius;
@@ -67,8 +64,6 @@ public struct AgentData
         this.distanceFactor = distanceFactor;
         this.boatWeight = boatWeight;
         this.boatDistanceFactor = boatDistanceFactor;
-        this.enemyWeight = enemyWeight;
-        this.enemyDistanceFactor = enemyDistanceFactor;
     }
 }
 
@@ -108,8 +103,24 @@ public class AgentLogic : MonoBehaviour, IComparable
     [SerializeField] private float distanceFactor;
     [SerializeField] private float boatWeight;
     [SerializeField] private float boatDistanceFactor;
-    [SerializeField] private float enemyWeight;
-    [SerializeField] private float enemyDistanceFactor;
+    //[SerializeField] private float enemyWeight;
+    //[SerializeField] private float enemyDistanceFactor;
+    [Space(10)] [Header("Stats")]
+    [SerializeField] public int attack;
+    [SerializeField] public int defense;
+    [SerializeField] public int moveStat;
+
+
+    private void GenerateCompletelyRandomStats() //this is not completely random since the chance of attack being higher is higher than for the rest (I think?)
+    {
+        int max = 10;
+        attack = Random.Range(0, max + 1);
+        max -= attack;
+        defense = Random.Range(0, max + 1);
+        max -= defense;
+        moveStat = max;
+    }
+
 
     [Space(10)] [Header("Debug & Help")] [SerializeField]
     private Color visionColor;
@@ -135,6 +146,7 @@ public class AgentLogic : MonoBehaviour, IComparable
     private void Awake()
     {
         Initiate();
+        GenerateCompletelyRandomStats();
     }
 
     /// <summary>
@@ -162,8 +174,8 @@ public class AgentLogic : MonoBehaviour, IComparable
         distanceFactor = parent.distanceFactor;
         boatWeight = parent.boatWeight;
         boatDistanceFactor = parent.boatDistanceFactor;
-        enemyWeight = parent.enemyWeight;
-        enemyDistanceFactor = parent.enemyDistanceFactor;
+        //enemyWeight = parent.enemyWeight;
+        //enemyDistanceFactor = parent.enemyDistanceFactor;
     }
 
     /// <summary>
@@ -240,7 +252,7 @@ public class AgentLogic : MonoBehaviour, IComparable
             boatDistanceFactor += Random.Range(-mutationFactor, +mutationFactor);
         }
 
-        if (Random.Range(0.0f, 100.0f) <= mutationChance)
+/*        if (Random.Range(0.0f, 100.0f) <= mutationChance)
         {
             enemyWeight += Random.Range(-mutationFactor, +mutationFactor);
         }
@@ -248,7 +260,7 @@ public class AgentLogic : MonoBehaviour, IComparable
         if (Random.Range(0.0f, 100.0f) <= mutationChance)
         {
             enemyDistanceFactor += Random.Range(-mutationFactor, +mutationFactor);
-        }
+        }*/
     }
 
     private void Update()
@@ -346,7 +358,7 @@ public class AgentLogic : MonoBehaviour, IComparable
                 //All formulas are the same. Only the weights change.
                 "Box" => distanceIndex * distanceFactor + boxWeight,
                 "Boat" => distanceIndex * boatDistanceFactor + boatWeight,
-                "Enemy" => distanceIndex * enemyDistanceFactor + enemyWeight,
+                //"Enemy" => distanceIndex * enemyDistanceFactor + enemyWeight,
                 _ => utility
             };
         }
@@ -405,6 +417,6 @@ public class AgentLogic : MonoBehaviour, IComparable
     public AgentData GetData()
     {
         return new AgentData(steps, rayRadius, sight, movingSpeed, randomDirectionValue, boxWeight, distanceFactor,
-            boatWeight, boatDistanceFactor, enemyWeight, enemyDistanceFactor);
+            boatWeight, boatDistanceFactor);
     }
 }

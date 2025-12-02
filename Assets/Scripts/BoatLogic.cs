@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.Experimental.GraphView;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -20,11 +21,24 @@ public class BoatLogic : AgentLogic
 
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag.Equals("Enemy"))
+        if (other.gameObject.tag.Equals("Boat"))
         {
-            //This is a safe-fail mechanism. In case something goes wrong and the Boat is not destroyed after touching
-            //a pirate, it also gets a massive negative number of points.
-            points += _piratePoints;
+            BoatLogic otherBoat = other.transform.GetComponent<BoatLogic>();
+            if (otherBoat != null) //add checksystem if they've engaged before
+            {
+                int thisBoatScore = attack - otherBoat.defense;
+                int otherBoatScore = otherBoat.attack - defense;
+                if (thisBoatScore > otherBoatScore)
+                {
+                    points += 7;
+                }
+                else if (otherBoatScore > thisBoatScore)
+                {
+                    points -= 10;
+                }
+                //add to the checked boats list I guess
+                return;
+            }
         }
     }
 }

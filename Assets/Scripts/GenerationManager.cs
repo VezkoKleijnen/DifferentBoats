@@ -179,7 +179,7 @@ public class GenerationManager : MonoBehaviour
         lastBoatWinnerData = lastBoatWinner.GetData();
         PrefabUtility.SaveAsPrefabAsset(lastBoatWinner.gameObject, savePrefabsAt + lastBoatWinner.name + ".prefab");
 
-        _activePirates.RemoveAll(item => item == null);
+/*        _activePirates.RemoveAll(item => item == null);
         _activePirates.Sort();
         _pirateParents = new PirateLogic[pirateParentSize];
         for (var i = 0; i < pirateParentSize; i++)
@@ -194,7 +194,7 @@ public class GenerationManager : MonoBehaviour
 
         //Winners:
         Debug.Log("Last winner boat had: " + lastBoatWinner.GetPoints() + " points!" + " Last winner pirate had: " +
-                  lastPirateWinner.GetPoints() + " points!");
+                  lastPirateWinner.GetPoints() + " points!");*/
 
         GenerateObjects(_boatParents, _pirateParents);
     }
