@@ -12,6 +12,8 @@ public class BoatLogic : AgentLogic
 
     #endregion
 
+    public int boatType;
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.gameObject.tag.Equals("Box")) return;
@@ -24,19 +26,11 @@ public class BoatLogic : AgentLogic
         if (other.gameObject.tag.Equals("Boat"))
         {
             BoatLogic otherBoat = other.transform.GetComponent<BoatLogic>();
-            if (otherBoat != null) //add checksystem if they've engaged before
+            if (otherBoat != null) 
             {
-                int thisBoatScore = attack - otherBoat.defense;
-                int otherBoatScore = otherBoat.attack - defense;
-                if (thisBoatScore > otherBoatScore)
-                {
-                    points += 7;
-                }
-                else if (otherBoatScore > thisBoatScore)
-                {
-                    points -= 10;
-                }
-                //add to the checked boats list I guess
+                float gainedPoints = attack - otherBoat.defense;
+                points += gainedPoints;
+                otherBoat.points -= gainedPoints;
                 return;
             }
         }

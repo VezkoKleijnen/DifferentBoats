@@ -9,7 +9,9 @@ public class GenerationManager : MonoBehaviour
     [Header("Generators")] [SerializeField]
     private GenerateObjectsInArea[] boxGenerators;
 
-    [SerializeField] private GenerateObjectsInArea boatGenerator;
+    [SerializeField] private GenerateObjectsInArea neutralBoatGenerator;
+    [SerializeField] private GenerateObjectsInArea aggressiveBoatGenerator;
+    [SerializeField] private GenerateObjectsInArea passiveBoatGenerator;
     //[SerializeField] private GenerateObjectsInArea pirateGenerator;
 
     [Space(10)] [Header("Parenting and Mutation")] [SerializeField]
@@ -17,7 +19,6 @@ public class GenerationManager : MonoBehaviour
 
     [SerializeField] private float mutationChance;
     [SerializeField] private int boatParentSize;
-    [SerializeField] private int pirateParentSize;
 
     [Space(10)] [Header("Simulation Controls")] [SerializeField, Tooltip("Time per simulation (in seconds).")]
     private float simulationTimer;
@@ -37,16 +38,19 @@ public class GenerationManager : MonoBehaviour
     /// <summary>
     /// Those variables are used mostly for debugging in the inspector.
     /// </summary>
-    [Header("Former winners")] [SerializeField]
-    private AgentData lastBoatWinnerData;
-
-    [SerializeField] private AgentData lastPirateWinnerData;
+    [Header("Former winners")]
+    [SerializeField] private AgentData lastNeutralBoatWinnerData;
+    [SerializeField] private AgentData lastAggressiveBoatWinnerData;
+    [SerializeField] private AgentData lastPassiveBoatWinnerData;
 
     private bool _runningSimulation;
-    private List<BoatLogic> _activeBoats;
-    private List<PirateLogic> _activePirates;
-    private BoatLogic[] _boatParents;
-    private PirateLogic[] _pirateParents;
+    private List<BoatLogic> _activeNeutralBoats;
+    private List<BoatLogic> _activeAggressiveBoats;
+    private List<BoatLogic> _activePassiveBoats;
+
+    private BoatLogic[] _boatNeutralParents;
+    private BoatLogic[] _boatAggressiveParents;
+    private BoatLogic[] _boatPassiveParents;
 
     private void Awake()
     {
@@ -92,11 +96,11 @@ public class GenerationManager : MonoBehaviour
     /// If no parents are used, then they are ignored and the boats/pirates are generated using the default prefab
     /// specified in their areas.
     /// </summary>
-    /// <param name="boatParents"></param>
+    /// <param name="boatNeutralParents"></param>
     /// <param name="pirateParents"></param>
-    public void GenerateObjects(BoatLogic[] boatParents = null, PirateLogic[] pirateParents = null)
+    public void GenerateObjects(BoatLogic[] boatNeutralParents = null, BoatLogic[] boatAggressiveParents = null, BoatLogic[] boatPassiveParents = null)
     {
-        GenerateBoats(boatParents);
+        GenerateBoats(ref _activeNeutralBoats, neutralBoatGenerator, boatNeutralParents);
         //GeneratePirates(pirateParents);
     }
 
@@ -130,13 +134,13 @@ public class GenerationManager : MonoBehaviour
     /// /// Newly create agents will be Awaken (calling AwakeUp()).
     /// </summary>
     /// <param name="boatParents"></param>
-    private void GenerateBoats(BoatLogic[] boatParents)
+    private void GenerateBoats(ref List<BoatLogic> _activeBoats, GenerateObjectsInArea boatGenerator, BoatLogic[] boatParents)
     {
-        _activeBoats = new List<BoatLogic>();
-        var objects = boatGenerator.RegenerateObjects();
+        _activeNeutralBoats = new List<BoatLogic>();
+        var objects = neutralBoatGenerator.RegenerateObjects();
         foreach (var boat in objects.Select(obj => obj.GetComponent<BoatLogic>()).Where(boat => boat != null))
         {
-            _activeBoats.Add(boat);
+            _activeNeutralBoats.Add(boat);
             if (boatParents != null)
             {
                 var boatParent = boatParents[Random.Range(0, boatParents.Length)];
@@ -158,14 +162,20 @@ public class GenerationManager : MonoBehaviour
     {
         Random.InitState(6);
 
+        StartNewBoats(ref _activeNeutralBoats, neutralBoatGenerator, ref _boatNeutralParents);
+
         GenerateBoxes();
 
+    }
+
+    private void StartNewBoats(ref List<BoatLogic> _activeBoats, GenerateObjectsInArea boatGenerator, ref BoatLogic[] _boatParents)
+    {
         //Fetch parents
         _activeBoats.RemoveAll(item => item == null);
         _activeBoats.Sort();
         if (_activeBoats.Count == 0)
         {
-            GenerateBoats(_boatParents);
+            GenerateBoats(ref _activeBoats, boatGenerator, _boatParents);
         }
 
         _boatParents = new BoatLogic[boatParentSize];
@@ -173,30 +183,11 @@ public class GenerationManager : MonoBehaviour
         {
             _boatParents[i] = _activeBoats[i];
         }
-
         var lastBoatWinner = _activeBoats[0];
         lastBoatWinner.name += "Gen-" + generationCount;
-        lastBoatWinnerData = lastBoatWinner.GetData();
+        lastNeutralBoatWinnerData = lastBoatWinner.GetData();
         PrefabUtility.SaveAsPrefabAsset(lastBoatWinner.gameObject, savePrefabsAt + lastBoatWinner.name + ".prefab");
-
-/*        _activePirates.RemoveAll(item => item == null);
-        _activePirates.Sort();
-        _pirateParents = new PirateLogic[pirateParentSize];
-        for (var i = 0; i < pirateParentSize; i++)
-        {
-            _pirateParents[i] = _activePirates[i];
-        }
-
-        var lastPirateWinner = _activePirates[0];
-        lastPirateWinner.name += "Gen-" + generationCount;
-        lastPirateWinnerData = lastPirateWinner.GetData();
-        PrefabUtility.SaveAsPrefabAsset(lastPirateWinner.gameObject, savePrefabsAt + lastPirateWinner.name + ".prefab");
-
-        //Winners:
-        Debug.Log("Last winner boat had: " + lastBoatWinner.GetPoints() + " points!" + " Last winner pirate had: " +
-                  lastPirateWinner.GetPoints() + " points!");*/
-
-        GenerateObjects(_boatParents, _pirateParents);
+        GenerateObjects(_boatParents);
     }
 
     /// <summary>
@@ -229,8 +220,8 @@ public class GenerationManager : MonoBehaviour
     public void StopSimulation()
     {
         _runningSimulation = false;
-        _activeBoats.RemoveAll(item => item == null);
-        _activeBoats.ForEach(boat => boat.Sleep());
-        _activePirates.ForEach(pirate => pirate.Sleep());
+        _activeNeutralBoats.RemoveAll(item => item == null);
+        _activeNeutralBoats.ForEach(boat => boat.Sleep());
+        //_activePirates.ForEach(pirate => pirate.Sleep());
     }
 }
