@@ -44,15 +44,6 @@ struct AgentDirection : IComparable
 [Serializable]
 public struct AgentData
 {
-    /*    public int steps;
-        public int rayRadius;
-        public float sight;
-        public float movingSpeed;
-        public Vector2 randomDirectionValue;
-        public float boxWeight;
-        public float distanceFactor;
-        public float boatWeight;
-        public float boatDistanceFactor;*/
     public float attack;
     public float defense;
     public float speed;
