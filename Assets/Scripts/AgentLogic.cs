@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -104,7 +106,7 @@ public class AgentLogic : MonoBehaviour, IComparable
     [Space(10)] [Header("Stats")]
     [SerializeField] public float attack;
     [SerializeField] public float defense;
-    [SerializeField] public float moveStat;
+    [SerializeField] public float speed;
 
 
     private void GenerateCompletelyRandomStats() //this is not completely random since the chance of attack being higher is higher than for the rest (I think?)
@@ -114,12 +116,13 @@ public class AgentLogic : MonoBehaviour, IComparable
         max -= attack;
         defense = Random.Range(0, max);
         max -= defense;
-        moveStat = max;
+        speed = max;
     }
 
 
     [Space(10)] [Header("Debug & Help")] [SerializeField]
     private Color visionColor;
+    private Color textColor;
 
     [SerializeField] private Color foundColor;
     [SerializeField] private Color directionColor;
@@ -141,6 +144,8 @@ public class AgentLogic : MonoBehaviour, IComparable
 
     private void Awake()
     {
+        textColor = visionColor;
+        visionColor.a = .1f;
         Initiate();
         GenerateCompletelyRandomStats();
     }
@@ -161,17 +166,9 @@ public class AgentLogic : MonoBehaviour, IComparable
     /// <param name="parent"></param>
     public void Birth(AgentData parent)
     {
-    /*        steps = parent.steps;
-            rayRadius = parent.rayRadius;
-            sight = parent.sight;
-            movingSpeed = parent.movingSpeed;
-            randomDirectionValue = parent.randomDirectionValue;
-            boxWeight = parent.boxWeight;
-            distanceFactor = parent.distanceFactor;
-            boatWeight = parent.boatWeight;
-            boatDistanceFactor = parent.boatDistanceFactor;*/
-        //enemyWeight = parent.enemyWeight;
-        //enemyDistanceFactor = parent.enemyDistanceFactor;
+        attack = parent.attack;
+        defense = parent.defense;
+        speed = parent.speed;
     }
 
     /// <summary>
@@ -182,7 +179,30 @@ public class AgentLogic : MonoBehaviour, IComparable
     /// <param name="mutationChance">Chance of a mutation happening per gene / weight.</param>
     public void Mutate(float mutationFactor, float mutationChance)
     {
+        if (Random.Range(0.0f, 100.0f) <= mutationChance)
+        {
+            MutateStat(ref attack, ref defense, ref speed, mutationFactor);
+        }
+        if (Random.Range(0.0f, 100.0f) <= mutationChance)
+        {
+            MutateStat(ref speed, ref defense, ref attack, mutationFactor);
+        }
+        if (Random.Range(0.0f, 100.0f) <= mutationChance)
+        {
+            MutateStat(ref defense, ref attack, ref speed, mutationFactor);
+        }
+    }
+    private void MutateStat(ref float improved, ref float reduced1, ref float reduced2, float mutationFactor)
+    {
 
+            float changeAmount = Random.Range(0, (reduced1 + reduced2) / mutationFactor);
+            improved += changeAmount;
+            float collectionAmount = (reduced2 + reduced1);
+            float reduction1 = changeAmount * (reduced1 / collectionAmount);
+
+            float reduction2 = changeAmount * (reduced2 / collectionAmount);
+            reduced1 -= reduction1;
+            reduced2 -= reduction2;
     }
 
     private void Update()
@@ -192,6 +212,19 @@ public class AgentLogic : MonoBehaviour, IComparable
             Act();
         }
     }
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (!debug || textColor == null)
+            return;
+        // Display points above the object
+        Vector3 positionAbove = transform.position + Vector3.up * 20f; // adjust height as needed
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = textColor;
+        style.fontSize = 14;
+        Handles.Label(positionAbove, points.ToString("F1"), style);
+    }
+#endif
 
     /// <summary>
     /// Calculate the best direction to move using the Agent properties.
@@ -234,7 +267,7 @@ public class AgentLogic : MonoBehaviour, IComparable
             Quaternion.LookRotation(highestAgentDirection.Direction), 0.1f);
 
         //Sets the velocity using the chosen direction
-        _rigidbody.linearVelocity = highestAgentDirection.Direction * movingSpeed;
+        _rigidbody.linearVelocity = highestAgentDirection.Direction * speed;
 
         if (debug)
         {
@@ -340,6 +373,6 @@ public class AgentLogic : MonoBehaviour, IComparable
     {
         /*        return new AgentData(steps, rayRadius, sight, movingSpeed, randomDirectionValue, boxWeight, distanceFactor,
                     boatWeight, boatDistanceFactor);*/
-        return new AgentData(attack, defense, moveStat);
+        return new AgentData(attack, defense, speed);
     }
 }

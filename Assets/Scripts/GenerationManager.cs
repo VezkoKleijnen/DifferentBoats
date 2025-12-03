@@ -101,6 +101,8 @@ public class GenerationManager : MonoBehaviour
     public void GenerateObjects(BoatLogic[] boatNeutralParents = null, BoatLogic[] boatAggressiveParents = null, BoatLogic[] boatPassiveParents = null)
     {
         GenerateBoats(ref _activeNeutralBoats, neutralBoatGenerator, boatNeutralParents);
+        GenerateBoats(ref _activeAggressiveBoats, aggressiveBoatGenerator, boatAggressiveParents);
+        GenerateBoats(ref _activePassiveBoats, passiveBoatGenerator, boatPassiveParents);
         //GeneratePirates(pirateParents);
     }
 
@@ -136,19 +138,21 @@ public class GenerationManager : MonoBehaviour
     /// <param name="boatParents"></param>
     private void GenerateBoats(ref List<BoatLogic> _activeBoats, GenerateObjectsInArea boatGenerator, BoatLogic[] boatParents)
     {
-        _activeNeutralBoats = new List<BoatLogic>();
-        var objects = neutralBoatGenerator.RegenerateObjects();
+        _activeBoats = new List<BoatLogic>();
+        var objects = boatGenerator.RegenerateObjects();
+        int i = 0; //for evenly spread out stats for the winners
         foreach (var boat in objects.Select(obj => obj.GetComponent<BoatLogic>()).Where(boat => boat != null))
         {
-            _activeNeutralBoats.Add(boat);
+            _activeBoats.Add(boat);
             if (boatParents != null)
             {
-                var boatParent = boatParents[Random.Range(0, boatParents.Length)];
+                var boatParent = boatParents[i % (boatParents.Length)]; // i % boatParents.Length could also work
                 boat.Birth(boatParent.GetData());
             }
 
             boat.Mutate(mutationFactor, mutationChance);
             boat.AwakeUp();
+            i++;
         }
     }
 
@@ -162,13 +166,16 @@ public class GenerationManager : MonoBehaviour
     {
         Random.InitState(6);
 
-        StartNewBoats(ref _activeNeutralBoats, neutralBoatGenerator, ref _boatNeutralParents);
+        StartNewBoats(ref _activeNeutralBoats, neutralBoatGenerator, ref _boatNeutralParents, ref lastNeutralBoatWinnerData);
+        StartNewBoats(ref _activeAggressiveBoats, aggressiveBoatGenerator, ref _boatAggressiveParents, ref lastAggressiveBoatWinnerData);
+        StartNewBoats(ref _activePassiveBoats, passiveBoatGenerator, ref _boatPassiveParents, ref lastPassiveBoatWinnerData);
 
+        GenerateObjects(_boatNeutralParents, _boatAggressiveParents, _boatPassiveParents);
         GenerateBoxes();
 
     }
 
-    private void StartNewBoats(ref List<BoatLogic> _activeBoats, GenerateObjectsInArea boatGenerator, ref BoatLogic[] _boatParents)
+    private void StartNewBoats(ref List<BoatLogic> _activeBoats, GenerateObjectsInArea boatGenerator, ref BoatLogic[] _boatParents, ref AgentData lastBoatWinnerData)
     {
         //Fetch parents
         _activeBoats.RemoveAll(item => item == null);
@@ -185,9 +192,8 @@ public class GenerationManager : MonoBehaviour
         }
         var lastBoatWinner = _activeBoats[0];
         lastBoatWinner.name += "Gen-" + generationCount;
-        lastNeutralBoatWinnerData = lastBoatWinner.GetData();
+        lastBoatWinnerData = lastBoatWinner.GetData();
         PrefabUtility.SaveAsPrefabAsset(lastBoatWinner.gameObject, savePrefabsAt + lastBoatWinner.name + ".prefab");
-        GenerateObjects(_boatParents);
     }
 
     /// <summary>

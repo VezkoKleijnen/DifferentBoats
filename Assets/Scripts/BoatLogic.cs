@@ -21,18 +21,25 @@ public class BoatLogic : AgentLogic
         Destroy(other.gameObject);
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnCollisionStay(Collision other)
     {
         if (other.gameObject.tag.Equals("Boat"))
         {
             BoatLogic otherBoat = other.transform.GetComponent<BoatLogic>();
-            if (otherBoat != null) 
+            if (otherBoat != null)
             {
                 float gainedPoints = attack - otherBoat.defense;
                 points += gainedPoints;
                 otherBoat.points -= gainedPoints;
                 return;
             }
+        }
+    }
+    private void LateUpdate()
+    {
+        if (points < 0)
+        {
+            Destroy(gameObject);
         }
     }
 }
