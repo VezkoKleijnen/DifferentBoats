@@ -100,9 +100,9 @@ public class GenerationManager : MonoBehaviour
     /// <param name="pirateParents"></param>
     public void GenerateObjects(BoatLogic[] boatNeutralParents = null, BoatLogic[] boatAggressiveParents = null, BoatLogic[] boatPassiveParents = null)
     {
-        GenerateBoats(ref _activeNeutralBoats, neutralBoatGenerator, boatNeutralParents);
-        GenerateBoats(ref _activeAggressiveBoats, aggressiveBoatGenerator, boatAggressiveParents);
-        GenerateBoats(ref _activePassiveBoats, passiveBoatGenerator, boatPassiveParents);
+        if (neutralBoatGenerator != null) GenerateBoats(ref _activeNeutralBoats, neutralBoatGenerator, boatNeutralParents);
+        if (aggressiveBoatGenerator != null) GenerateBoats(ref _activeAggressiveBoats, aggressiveBoatGenerator, boatAggressiveParents);
+        if (passiveBoatGenerator != null) GenerateBoats(ref _activePassiveBoats, passiveBoatGenerator, boatPassiveParents);
         //GeneratePirates(pirateParents);
     }
 
@@ -166,9 +166,9 @@ public class GenerationManager : MonoBehaviour
     {
         Random.InitState(6);
 
-        StartNewBoats(ref _activeNeutralBoats, neutralBoatGenerator, ref _boatNeutralParents, ref lastNeutralBoatWinnerData);
-        StartNewBoats(ref _activeAggressiveBoats, aggressiveBoatGenerator, ref _boatAggressiveParents, ref lastAggressiveBoatWinnerData);
-        StartNewBoats(ref _activePassiveBoats, passiveBoatGenerator, ref _boatPassiveParents, ref lastPassiveBoatWinnerData);
+        if (neutralBoatGenerator != null) StartNewBoats(ref _activeNeutralBoats, neutralBoatGenerator, ref _boatNeutralParents, ref lastNeutralBoatWinnerData);
+        if (aggressiveBoatGenerator != null) StartNewBoats(ref _activeAggressiveBoats, aggressiveBoatGenerator, ref _boatAggressiveParents, ref lastAggressiveBoatWinnerData);
+        if (passiveBoatGenerator != null) StartNewBoats(ref _activePassiveBoats, passiveBoatGenerator, ref _boatPassiveParents, ref lastPassiveBoatWinnerData);
 
         GenerateObjects(_boatNeutralParents, _boatAggressiveParents, _boatPassiveParents);
         GenerateBoxes();
