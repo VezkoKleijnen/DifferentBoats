@@ -111,7 +111,7 @@ public class AgentLogic : MonoBehaviour, IComparable
 
     private void GenerateCompletelyRandomStats() //this is not completely random since the chance of attack being higher is higher than for the rest (I think?)
     {
-        float max = 10;
+        float max = _maxStat;
         attack = Random.Range(0, max);
         max -= attack;
         defense = Random.Range(0, max);
@@ -132,12 +132,7 @@ public class AgentLogic : MonoBehaviour, IComparable
 
     #region Static Variables
 
-    private static readonly float _minimalSteps = 1.0f;
-    private static readonly float _minimalRayRadius = 1.0f;
-    private static readonly float _minimalSight = 0.1f;
-    private static readonly float _minimalMovingSpeed = 1.0f;
-    private static readonly float _speedInfluenceInSight = 0.1250f;
-    private static readonly float _sightInfluenceInSpeed = 0.0625f;
+    private static readonly float _maxStat = 30f;
     private static readonly float _maxUtilityChoiceChance = 0.85f;
 
     #endregion
@@ -181,15 +176,18 @@ public class AgentLogic : MonoBehaviour, IComparable
     {
         if (Random.Range(0.0f, 100.0f) <= mutationChance)
         {
-            MutateStat(ref attack, ref defense, ref speed, mutationFactor);
-        }
-        if (Random.Range(0.0f, 100.0f) <= mutationChance)
-        {
-            MutateStat(ref speed, ref defense, ref attack, mutationFactor);
-        }
-        if (Random.Range(0.0f, 100.0f) <= mutationChance)
-        {
-            MutateStat(ref defense, ref attack, ref speed, mutationFactor);
+            switch(Random.Range(0, 3))
+            {
+                case 0:
+                    MutateStat(ref attack, ref defense, ref speed, mutationFactor);
+                    break;
+                case 1:
+                    MutateStat(ref speed, ref defense, ref attack, mutationFactor);
+                    break;
+                case 2:
+                    MutateStat(ref defense, ref attack, ref speed, mutationFactor);
+                    break;
+            }
         }
     }
     private void MutateStat(ref float improved, ref float reduced1, ref float reduced2, float mutationFactor)
