@@ -32,6 +32,8 @@ public class BoatLogic : AgentLogic
                 points += gainedPoints;
                 if (doneDamage > otherBoat.points)
                 {
+                    otherBoat.points = -1;
+                    SaveBoatStats.Instance.AddStats(otherBoat);
                     Destroy(otherBoat.gameObject);
                     points++;
                 }

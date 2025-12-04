@@ -52,6 +52,8 @@ public class GenerationManager : MonoBehaviour
     private BoatLogic[] _boatAggressiveParents;
     private BoatLogic[] _boatPassiveParents;
 
+    SaveBoatStats saveData = new SaveBoatStats();
+
     private void Awake()
     {
         Random.InitState(6);
@@ -179,6 +181,10 @@ public class GenerationManager : MonoBehaviour
     {
         //Fetch parents
         _activeBoats.RemoveAll(item => item == null);
+
+        //add the boats that still exists also to the savedata (deleted boats should already have been added)
+        saveData.AddStats(_activeBoats);
+
         _activeBoats.Sort();
         if (_activeBoats.Count == 0)
         {
@@ -194,6 +200,7 @@ public class GenerationManager : MonoBehaviour
         lastBoatWinner.name += "Gen-" + generationCount;
         lastBoatWinnerData = lastBoatWinner.GetData();
         PrefabUtility.SaveAsPrefabAsset(lastBoatWinner.gameObject, savePrefabsAt + lastBoatWinner.name + ".prefab");
+        saveData.StartNewGeneration();
     }
 
     /// <summary>
@@ -203,7 +210,7 @@ public class GenerationManager : MonoBehaviour
     public void StartSimulation()
     {
         Random.InitState(6);
-
+        saveData.SetBoatsAmount(neutralBoatGenerator.count);
         GenerateBoxes();
         GenerateObjects();
         _runningSimulation = true;
@@ -221,13 +228,13 @@ public class GenerationManager : MonoBehaviour
 
     /// <summary>
     /// Stops the count for the simulation. It also removes null (Destroyed) boats from the _activeBoats list and sets
-    /// all boats and pirates to Sleep.
+    /// all boats to Sleep.
     /// </summary>
     public void StopSimulation()
     {
         _runningSimulation = false;
         _activeNeutralBoats.RemoveAll(item => item == null);
         _activeNeutralBoats.ForEach(boat => boat.Sleep());
-        //_activePirates.ForEach(pirate => pirate.Sleep());
+        saveData.SaveStats();
     }
 }

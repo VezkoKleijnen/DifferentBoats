@@ -16,7 +16,7 @@ public class GenerateObjectsInArea : MonoBehaviour
     private GameObject[] gameObjectToBeCreated;
 
     [SerializeField, Tooltip("Number of objects to be created.")]
-    private uint count;
+    public uint count;
 
     [Space(10)] 
     [Header("Variation")] 
