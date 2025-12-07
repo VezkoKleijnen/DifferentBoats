@@ -4,5 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/DataDisplay.unity
+    guid: 3468d8d45280dd04385de32bd9fe8fc4
+  - enabled: 1
+    path: Assets/Scenes/LoadDataScene.unity
+    guid: 1ee2c1cd17dde2544b31f603a1e32270
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
