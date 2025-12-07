@@ -183,9 +183,10 @@ public class GenerationManager : MonoBehaviour
         _activeBoats.RemoveAll(item => item == null);
 
         //add the boats that still exists also to the savedata (deleted boats should already have been added)
+        _activeBoats.Sort();
+
         saveData.AddStats(_activeBoats);
 
-        _activeBoats.Sort();
         if (_activeBoats.Count == 0)
         {
             GenerateBoats(ref _activeBoats, boatGenerator, _boatParents);

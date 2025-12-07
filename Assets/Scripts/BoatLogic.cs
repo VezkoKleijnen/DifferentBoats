@@ -41,6 +41,7 @@ public class BoatLogic : AgentLogic
                 {
                     otherBoat.points -= gainedPoints;
                 }
+                _metAgents.Add(other.transform.GetComponent<AgentLogic>());
                 return;
             }
         }

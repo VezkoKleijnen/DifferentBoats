@@ -99,6 +99,8 @@ public class AgentLogic : MonoBehaviour, IComparable
     [SerializeField] public float defense;
     [SerializeField] public float speed;
 
+    protected List<AgentLogic> _metAgents = new List<AgentLogic>();
+
 
     private void GenerateCompletelyRandomStats() //this is not completely random since the chance of attack being higher is higher than for the rest (I think?)
     {
@@ -305,6 +307,18 @@ public class AgentLogic : MonoBehaviour, IComparable
                 //"Enemy" => distanceIndex * enemyDistanceFactor + enemyWeight,
                 _ => utility
             };
+
+            //also check if it is a boat, check if you have interacted before
+            if (raycastHit.collider.gameObject.CompareTag("Boat"))
+            {
+                AgentLogic al = raycastHit.collider.GetComponent<AgentLogic>();
+                if (al != null && _metAgents.Contains(al))
+                {
+                    utility = 0;
+                }
+            }
+
+
         }
 
         direction.utility = utility;
