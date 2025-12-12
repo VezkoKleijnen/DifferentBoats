@@ -206,4 +206,8 @@ public class SaveBoatStats
     {
         return amountOfBoats;
     }
+    public int GetAmountOfGenerations()
+    {
+        return amountOfGenerations;
+    }
 }

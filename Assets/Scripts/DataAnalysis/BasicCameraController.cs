@@ -7,9 +7,15 @@ public class BasicCameraController : MonoBehaviour
     float speed = 5;
     float sensitivity = 100;
     [SerializeField] Transform xRotation;
+    Vector3 startPos;
+    Quaternion startRot;
+    Quaternion startRotxRot;
     private void Start()
     {
         cam = GetComponentInChildren<Camera>();
+        startPos = transform.position;
+        startRot = transform.rotation;
+        startRotxRot = xRotation.localRotation;
     }
     private void Update()
     {
@@ -19,19 +25,34 @@ public class BasicCameraController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.W))
         {
-            transform.Translate(xRotation.forward * speed * Time.deltaTime, Space.World);
-            if (cam != null && cam.orthographic)
+            if (graphMode)
             {
-                cam.orthographicSize -= speed * Time.deltaTime;
+                transform.position += new Vector3(0, 1, 0) * Time.deltaTime * speed;
+            }
+            else
+            {
+                transform.Translate(xRotation.forward * speed * Time.deltaTime, Space.World);
+                if (cam != null && cam.orthographic)
+                {
+                    cam.orthographicSize -= speed * Time.deltaTime;
+                }
             }
         }
         if (Input.GetKey(KeyCode.S))
         {
-            transform.Translate(-1 * xRotation.forward * speed * Time.deltaTime, Space.World);
-            if (cam != null && cam.orthographic)
+            if (graphMode)
             {
-                cam.orthographicSize += speed * Time.deltaTime;
+                transform.position += new Vector3(0, -1, 0) * Time.deltaTime * speed;
             }
+            else
+            {
+                transform.Translate(-1 * xRotation.forward * speed * Time.deltaTime, Space.World);
+                if (cam != null && cam.orthographic)
+                {
+                    cam.orthographicSize += speed * Time.deltaTime;
+                }
+            }
+
         }
         if (Input.GetKey(KeyCode.D))
         {
@@ -60,5 +81,30 @@ public class BasicCameraController : MonoBehaviour
         {
             UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
+    }
+    private bool graphMode = false;
+    public void SetCamForGraph()
+    {
+        graphMode = !graphMode;
+        if (graphMode)
+        {
+            transform.position = new Vector3(7, 10, 17);
+            transform.rotation = Quaternion.Euler(0, -90, 0);
+            xRotation.localRotation = Quaternion.Euler(0, 0, 0);
+            if (cam == null)
+                return;
+
+            cam.orthographicSize = 13;
+            cam.orthographic = true;
+        }
+        else
+        {
+            transform.position = startPos;
+            transform.rotation = startRot;
+            xRotation.localRotation = startRotxRot;
+            if (cam == null) return;
+            cam.orthographic = false;
+        }
+
     }
 }
